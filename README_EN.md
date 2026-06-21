@@ -65,7 +65,6 @@ The default template is `meta-rules`; the Web UI and `/sub` requests without a `
 
 - [User guide](docs/USER_GUIDE.md)
 - [Upstream differences](docs/UPSTREAM_DIFFERENCES.md)
-- [Publishing guide](docs/PUBLISHING.md)
 - [Attribution and non-affiliation notice](NOTICE.md)
 
 ## Security

@@ -81,7 +81,6 @@ SUBCONV_PORT=3000 SUBCONV_IMAGE=ghcr.io/alex-syz/subconv-rust:3.0.0 \
 
 - [用户指南](docs/USER_GUIDE.md)
 - [与上游的差异](docs/UPSTREAM_DIFFERENCES.md)
-- [发布指南](docs/PUBLISHING.md)
 - [来源及非官方声明](NOTICE.md)
 
 ## 安全提醒
