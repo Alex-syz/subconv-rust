@@ -1,0 +1,18 @@
+# IMPORTANT: Create ./config.yaml before starting this Compose project.
+# If it is missing, Docker may create a directory named config.yaml for the
+# bind mount, and the container will fail because /app/config.yaml must be a file.
+# Create it with: cp config.yaml.example config.yaml
+
+services:
+  subconv:
+    image: "${SUBCONV_IMAGE:-ghcr.io/alex-syz/subconv-rust:3.0.0}"
+    ports:
+      - "${SUBCONV_PORT:-8080}:8080"
+    volumes:
+      - ./config.yaml:/app/config.yaml:ro
+      - ./template:/app/template:ro
+      - cache-data:/app/cache
+    restart: unless-stopped
+
+volumes:
+  cache-data:
