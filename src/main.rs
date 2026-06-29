@@ -7,7 +7,7 @@ use std::sync::Arc;
 use std::time::Duration;
 
 use subconv::app::{AppState, build_app};
-use subconv::cache::LayeredCache;
+use subconv::cache::{LayeredCache, SubCache};
 use subconv::config::AppConfig;
 use subconv::SubconvError;
 
@@ -44,11 +44,29 @@ async fn main() -> Result<(), SubconvError> {
     // 4. Build layered cache.
     let cache = Arc::new(LayeredCache::new(&config));
 
+    // 4b. Build subscription cache.
+    let sub_cache = Arc::new(SubCache::new(
+        Duration::from_secs(config.sub_cache_ttl),
+        Duration::from_secs(config.sub_cache_lock_timeout),
+    ));
+
     // 5. Start cache cleanup background task (every 10 minutes).
-    let cleanup_handle = subconv::cache::start_cleanup_task(
-        Arc::clone(&cache),
-        Duration::from_secs(600),
-    );
+    let cleanup_cache = Arc::clone(&cache);
+    let cleanup_sub_cache = Arc::clone(&sub_cache);
+    let cleanup_handle = tokio::spawn(async move {
+        let mut interval = tokio::time::interval(Duration::from_secs(600));
+        interval.tick().await; // skip first tick
+        loop {
+            interval.tick().await;
+            tracing::debug!("running periodic cache cleanup");
+            cleanup_cache.evict_expired().await;
+            cleanup_sub_cache.cleanup_inflight();
+            let evicted = cleanup_sub_cache.evict_expired();
+            if evicted > 0 {
+                tracing::info!(count = evicted, "evicted expired subscription cache entries");
+            }
+        }
+    });
 
     // 6. Validate templates on startup.
     let available = config.available_templates();
@@ -71,6 +89,7 @@ async fn main() -> Result<(), SubconvError> {
         config: Arc::new(config),
         http_client,
         cache,
+        sub_cache,
     };
 
     // 8. Build Axum app.

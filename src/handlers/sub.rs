@@ -6,6 +6,7 @@
 use axum::extract::{Query, State};
 use axum::http::HeaderMap;
 use axum::response::{IntoResponse, Response};
+use bytes::Bytes;
 use serde::Deserialize;
 
 use crate::app::AppState;
@@ -39,10 +40,61 @@ pub async fn sub_handler(
     State(state): State<AppState>,
     Query(params): Query<SubParams>,
     headers: HeaderMap,
+    uri: axum::http::Uri,
 ) -> Result<Response, SubconvError> {
     let interval = params.interval.as_deref().unwrap_or("1800");
     let short = params.short.is_some();
     let notproxyrule = params.npr.is_some();
+
+    // Check subscription cache.
+    let cache_key = format!("sub:{}", uri.query().unwrap_or(""));
+    if let Some(cached) = state.sub_cache.get(&cache_key) {
+        let mut resp = cached.body.into_response();
+        resp.headers_mut().insert(
+            "Content-Type",
+            axum::http::HeaderValue::from_static("text/yaml;charset=utf-8"),
+        );
+        if let Some(info) = cached.subscription_userinfo {
+            if let Ok(val) = axum::http::HeaderValue::from_str(&info) {
+                resp.headers_mut().insert("subscription-userinfo", val);
+            }
+        }
+        if let Some(disp) = cached.content_disposition {
+            if let Ok(val) = axum::http::HeaderValue::from_str(&disp) {
+                resp.headers_mut().insert("Content-Disposition", val);
+            }
+        }
+        return Ok(resp);
+    }
+
+    // Request coalescing: wait for in-flight request or proceed.
+    let lock = state.sub_cache.get_or_create_lock(&cache_key);
+    let guard = tokio::time::timeout(state.sub_cache.lock_timeout(), lock.lock())
+        .await;
+    let _guard = guard.ok();
+
+    // Double-check cache after acquiring lock.
+    if let Some(cached) = state.sub_cache.get(&cache_key) {
+        let mut resp = cached.body.into_response();
+        resp.headers_mut().insert(
+            "Content-Type",
+            axum::http::HeaderValue::from_static("text/yaml;charset=utf-8"),
+        );
+        if let Some(info) = cached.subscription_userinfo {
+            if let Ok(val) = axum::http::HeaderValue::from_str(&info) {
+                resp.headers_mut().insert("subscription-userinfo", val);
+            }
+        }
+        if let Some(disp) = cached.content_disposition {
+            if let Ok(val) = axum::http::HeaderValue::from_str(&disp) {
+                resp.headers_mut().insert("Content-Disposition", val);
+            }
+        }
+        return Ok(resp);
+    }
+    // If lock timed out, we proceed without the lock. This may result in
+    // duplicate fetches but is not a correctness issue — the cache write
+    // is protected by RwLock and the response is still valid.
 
     // Resolve template.
     let template_name = params
@@ -149,22 +201,32 @@ pub async fn sub_handler(
     )?;
 
     // Build response with transparent headers.
+    let resp_body = Bytes::from(yaml.clone());
     let mut resp = yaml.into_response();
     resp.headers_mut().insert(
         "Content-Type",
         axum::http::HeaderValue::from_static("text/yaml;charset=utf-8"),
     );
 
-    if let Some(info) = subscription_userinfo {
-        if let Ok(val) = axum::http::HeaderValue::from_str(&info) {
+    if let Some(ref info) = subscription_userinfo {
+        if let Ok(val) = axum::http::HeaderValue::from_str(info) {
             resp.headers_mut().insert("subscription-userinfo", val);
         }
     }
-    if let Some(disp) = content_disposition {
-        if let Ok(val) = axum::http::HeaderValue::from_str(&disp) {
+    if let Some(ref disp) = content_disposition {
+        if let Ok(val) = axum::http::HeaderValue::from_str(disp) {
             resp.headers_mut().insert("Content-Disposition", val);
         }
     }
+
+    // Cache the successful response.
+    let cache_entry = crate::cache::subscription::CacheEntry {
+        body: resp_body.clone(),
+        subscription_userinfo: subscription_userinfo.clone(),
+        content_disposition: content_disposition.clone(),
+        fetched_at: std::time::Instant::now(),
+    };
+    state.sub_cache.put(cache_key, cache_entry);
 
     Ok(resp)
 }

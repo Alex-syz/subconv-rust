@@ -10,6 +10,7 @@ use axum::Router;
 use axum::routing::get;
 
 use crate::cache::LayeredCache;
+use crate::cache::SubCache;
 use crate::config::AppConfig;
 use crate::handlers;
 
@@ -19,6 +20,7 @@ pub struct AppState {
     pub config: Arc<AppConfig>,
     pub http_client: reqwest::Client,
     pub cache: Arc<LayeredCache>,
+    pub sub_cache: Arc<SubCache>,
 }
 
 /// Build the Axum `Router` with all routes and middleware.
