@@ -34,6 +34,12 @@ fn default_cache_dir() -> String {
 fn default_cache_max_size() -> u64 {
     50
 }
+fn default_sub_cache_ttl() -> u64 {
+    300
+}
+fn default_sub_cache_lock_timeout() -> u64 {
+    3
+}
 
 // ---------------------------------------------------------------------------
 // Data types
@@ -72,6 +78,12 @@ pub struct AppConfig {
 
     #[serde(rename = "CACHE_MAX_SIZE_MB", default = "default_cache_max_size")]
     pub cache_max_size_mb: u64,
+
+    #[serde(rename = "SUB_CACHE_TTL", default = "default_sub_cache_ttl")]
+    pub sub_cache_ttl: u64,
+
+    #[serde(rename = "SUB_CACHE_LOCK_TIMEOUT", default = "default_sub_cache_lock_timeout")]
+    pub sub_cache_lock_timeout: u64,
 }
 
 /// A single remote template entry in the whitelist.
@@ -186,6 +198,16 @@ impl AppConfig {
         if let Ok(v) = std::env::var("SUBCONV_CACHE_MAX_SIZE_MB") {
             config.cache_max_size_mb = v.parse().map_err(|_| {
                 SubconvError::Config("SUBCONV_CACHE_MAX_SIZE_MB is not a valid u64".into())
+            })?;
+        }
+        if let Ok(v) = std::env::var("SUBCONV_SUB_CACHE_TTL") {
+            config.sub_cache_ttl = v.parse().map_err(|_| {
+                SubconvError::Config("SUBCONV_SUB_CACHE_TTL is not a valid u64".into())
+            })?;
+        }
+        if let Ok(v) = std::env::var("SUBCONV_SUB_CACHE_LOCK_TIMEOUT") {
+            config.sub_cache_lock_timeout = v.parse().map_err(|_| {
+                SubconvError::Config("SUBCONV_SUB_CACHE_LOCK_TIMEOUT is not a valid u64".into())
             })?;
         }
         Ok(())
