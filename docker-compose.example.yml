@@ -1,0 +1,54 @@
+# ============================================================
+# SubConv Docker Compose 示例配置
+# ============================================================
+# 使用说明：
+# 1. 先确保 config.yaml 文件存在（见下方警告）
+# 2. 将本文件复制为 docker-compose.yml
+# 3. 按需修改端口映射等配置
+# 4. 运行：docker compose up -d
+#
+# ⚠️ 重要警告：bind mount 对不存在的文件会创建为目录！
+#    如果 config.yaml 不存在，Docker 会将 ./config.yaml 挂载为一个空目录，
+#    导致容器内 /app/config.yaml 变成目录，服务启动失败。
+#    请务必先复制 config.yaml.example 为 config.yaml 并修改后再启动。
+#    命令：cp config.yaml.example config.yaml
+# ============================================================
+
+services:
+  subconv:
+    # 服务名称，可自定义
+    # 构建方式：使用当前目录的 Dockerfile 构建镜像
+    build: .
+
+    # 端口映射：宿主机端口:容器端口
+    # 左侧 8080 是宿主机暴露的端口，可改为其他端口如 3000:8080
+    # 右侧 8080 是容器内部监听端口，需与 config.yaml 中的 PORT 一致
+    ports:
+      - "8080:8080"
+
+    # 数据卷挂载
+    volumes:
+      # 配置文件挂载（⚠️ 必须先存在 config.yaml 文件，不能是目录！）
+      # 将本地 config.yaml 挂载到容器内的 /app/config.yaml
+      # 修改本地 config.yaml 后重启容器即可生效
+      - ./config.yaml:/app/config.yaml
+
+      # 本地模板目录挂载
+      # 将本地 template/ 目录挂载到容器内的 /app/template
+      # 可在本地 template/ 目录下添加自定义模板文件
+      - ./template:/app/template
+
+      # 缓存数据持久化（使用命名卷）
+      # 缓存远程规则文件，避免容器重启后重复下载
+      # 使用命名卷而非 bind mount，确保数据持久化且类型正确
+      - cache-data:/app/cache
+
+    # 重启策略：除非手动停止，否则总是自动重启
+    # 可选值：no（不重启）、always（总是重启）、on-failure（失败时重启）、unless-stopped（除非手动停止）
+    restart: unless-stopped
+
+# 命名卷定义
+# cache-data 卷由 Docker 自动管理，存储在 Docker 数据目录中
+# 删除容器时不会丢失，可使用 docker volume rm 手动清理
+volumes:
+  cache-data:

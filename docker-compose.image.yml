@@ -1,11 +1,9 @@
-# IMPORTANT: Create ./config.yaml before starting this Compose project.
-# If it is missing, Docker may create a directory named config.yaml for the
-# bind mount, and the container will fail because /app/config.yaml must be a file.
-# Create it with: cp config.yaml.example config.yaml
-
+# 启动前必须确保当前目录存在普通文件 config.yaml：
+#   cp config.yaml.example config.yaml
+# 如果文件不存在，Docker 可能把挂载目标创建成目录并导致服务启动失败。
 services:
   subconv:
-    image: "${SUBCONV_IMAGE:-ghcr.io/alex-syz/subconv-rust:3.0.0}"
+    image: "${SUBCONV_IMAGE:?Set SUBCONV_IMAGE to the Docker Hub image name}"
     ports:
       - "${SUBCONV_PORT:-8080}:8080"
     volumes:
