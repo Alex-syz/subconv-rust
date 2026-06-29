@@ -63,7 +63,7 @@ async fn main() -> Result<(), SubconvError> {
             cleanup_sub_cache.cleanup_inflight();
             let evicted = cleanup_sub_cache.evict_expired();
             if evicted > 0 {
-                tracing::info!(count = evicted, "evicted expired subscription cache entries");
+                tracing::debug!(count = evicted, "evicted expired subscription cache entries");
             }
         }
     });
