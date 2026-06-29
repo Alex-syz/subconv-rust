@@ -12,8 +12,10 @@
 pub mod disk;
 pub mod layer;
 pub mod memory;
+pub mod subscription;
 
 pub use layer::LayeredCache;
+pub use subscription::SubCache;
 
 use std::sync::Arc;
 use std::time::Duration;
