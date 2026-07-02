@@ -14,7 +14,17 @@ HEAD:
     proxy-server-nameserver:
     - https://dns.alidns.com/dns-query
     nameserver-policy:
-      geosite:gfw,geolocation-!cn:
+      # 直连服务用国内 DNS，抢在 geosite:gfw 之前匹配
+      "+.apple.com,+.icloud.com,+.itunes.apple.com,+.mzstatic.com,+.cdn-apple.com,+.apple-dns.net":
+      - https://dns.alidns.com/dns-query
+      - https://doh.pub/dns-query
+      "+.bing.com,+.bing.net,+.live.com,+.msn.com,+.microsoft.com,+.microsoftonline.com,+.office.com,+.office.net,+.windows.com,+.windowsupdate.com,+.xboxlive.com":
+      - https://dns.alidns.com/dns-query
+      - https://doh.pub/dns-query
+      "+.steampowered.com,+.steamcommunity.com,+.steamstatic.com,+.steam-chat.com,+.valvesoftware.com":
+      - https://dns.alidns.com/dns-query
+      - https://doh.pub/dns-query
+      geosite:gfw:
       - https://1.1.1.1/dns-query#🚀 节点选择
       - https://1.0.0.1/dns-query#🚀 节点选择
       - https://8.8.8.8/dns-query#🚀 节点选择
@@ -45,11 +55,6 @@ RULESET:
   # AI平台（国外）
   - - 🤖 AI平台
     - https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/category-ai-!cn.yaml
-    - domain
-    - yaml
-  # AI对话平台（国外）
-  - - 💬 AI对话
-    - https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/category-ai-chat-!cn.yaml
     - domain
     - yaml
   # YouTube
@@ -99,6 +104,11 @@ RULESET:
     - yaml
   # 游戏平台（国外）
   - - 🕹️ 游戏平台
+    - https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/category-games.yaml
+    - domain
+    - yaml
+  # TikTok
+  - - 📱 TikTok
     - https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/category-entertainment@!cn.yaml
     - domain
     - yaml
@@ -139,9 +149,6 @@ CUSTOM_PROXY_GROUP:
 - name: 🤖 AI平台
   type: select
   prior: PROXY
-- name: 💬 AI对话
-  type: select
-  prior: PROXY
 - name: 📹 油管视频
   type: select
   prior: PROXY
@@ -151,6 +158,9 @@ CUSTOM_PROXY_GROUP:
 - name: 📺 哔哩哔哩
   type: select
   prior: DIRECT
+- name: 📱 TikTok
+  type: select
+  prior: PROXY
 - name: 📢 谷歌服务
   type: select
   prior: PROXY
