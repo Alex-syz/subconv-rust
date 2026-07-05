@@ -1,0 +1,43 @@
+# SubConv 配置文件
+# 复制此文件为 config.yaml 并按需修改
+
+HOST: 0.0.0.0
+PORT: 8080
+DEFAULT_TEMPLATE: meta-rules
+DISALLOW_ROBOTS: true
+
+# ============================================================
+# 远程模板配置（白名单式）
+# ============================================================
+# 添加远程模板的步骤：
+# 1. 在下方 REMOTE_TEMPLATES 列表中添加条目
+# 2. name: 模板名称，会出现在 WebUI 的模板下拉框中
+#    - 只能包含字母、数字、下划线和连字符
+#    - 不能与本地 template/ 目录下的模板重名（若重名，本地优先）
+# 3. url: 模板 YAML 文件的原始下载链接（GitHub raw 链接等）
+#    - 仅支持 http:// 和 https:// 协议
+#    - 不允许指向内网地址（127.0.0.1、10.x、192.168.x 等）
+# 4. sha256: 可选，模板文件的 SHA256 哈希值，用于校验完整性
+#    - 留空或不填则不校验（每次拉取最新版本）
+#    - 填写后仅当哈希匹配时才使用，防止模板被篡改
+#    - 生成方式：sha256sum template.yaml 或 openssl dgst -sha256 template.yaml
+# 5. 重启服务后生效
+#
+# 示例：
+# REMOTE_TEMPLATES:
+#   - name: community-ai
+#     url: https://raw.githubusercontent.com/example/subconv-templates/main/ai.yaml
+#     sha256: ""  # 留空不校验
+#   - name: community-minimal
+#     url: https://example.com/templates/minimal.yaml
+#     sha256: "a1b2c3d4e5f6..."  # 固定版本，校验完整性
+REMOTE_TEMPLATES: []
+
+# ============================================================
+# 缓存配置
+# ============================================================
+# 缓存用于存储远程规则文件（RULESET 中引用的 .list/.yaml），
+# 减少对外部资源的重复请求。
+CACHE_TTL: 7200          # 规则文件缓存 TTL（秒），meta-rules-dat 每日更新，2小时足够
+CACHE_DIR: ./cache       # 磁盘缓存目录
+CACHE_MAX_SIZE_MB: 50    # 磁盘缓存最大容量
