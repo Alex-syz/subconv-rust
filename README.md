@@ -24,12 +24,12 @@ SubConv-Rust 是 [SubConv/SubConv](https://github.com/SubConv/SubConv) 的非官
 
 ```bash
 cp config.yaml.example config.yaml
-SUBCONV_IMAGE=ghcr.io/alex-syz/subconv-rust:3.0.0 \
+SUBCONV_IMAGE=ghcr.io/alex-syz/subconv-rust:3.1.0 \
   docker compose -f docker-compose.image.yml up -d
 ```
 
 ```bash
-docker pull ghcr.io/alex-syz/subconv-rust:3.0.0
+docker pull ghcr.io/alex-syz/subconv-rust:3.1.0
 ```
 
 检查运行状态：
@@ -54,7 +54,7 @@ docker compose -f docker-compose.image.yml down
 默认端口为 `8080`。需要修改宿主机端口时：
 
 ```bash
-SUBCONV_PORT=3000 SUBCONV_IMAGE=ghcr.io/alex-syz/subconv-rust:3.0.0 \
+SUBCONV_PORT=3000 SUBCONV_IMAGE=ghcr.io/alex-syz/subconv-rust:3.1.0 \
   docker compose -f docker-compose.image.yml up -d
 ```
 

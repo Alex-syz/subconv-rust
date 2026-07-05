@@ -15,7 +15,7 @@
 
 ```bash
 cp config.yaml.example config.yaml
-SUBCONV_IMAGE=ghcr.io/alex-syz/subconv-rust:3.0.0 \
+SUBCONV_IMAGE=ghcr.io/alex-syz/subconv-rust:3.1.0 \
   docker compose -f docker-compose.image.yml up -d
 ```
 

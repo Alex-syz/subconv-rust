@@ -23,12 +23,12 @@ Install Docker and Docker Compose, download the project files, and run these com
 
 ```bash
 cp config.yaml.example config.yaml
-SUBCONV_IMAGE=ghcr.io/alex-syz/subconv-rust:3.0.0 \
+SUBCONV_IMAGE=ghcr.io/alex-syz/subconv-rust:3.1.0 \
   docker compose -f docker-compose.image.yml up -d
 ```
 
 ```bash
-docker pull ghcr.io/alex-syz/subconv-rust:3.0.0
+docker pull ghcr.io/alex-syz/subconv-rust:3.1.0
 ```
 
 Verify the service:
@@ -51,7 +51,7 @@ docker compose -f docker-compose.image.yml down
 To use a different host port:
 
 ```bash
-SUBCONV_PORT=3000 SUBCONV_IMAGE=ghcr.io/alex-syz/subconv-rust:3.0.0 \
+SUBCONV_PORT=3000 SUBCONV_IMAGE=ghcr.io/alex-syz/subconv-rust:3.1.0 \
   docker compose -f docker-compose.image.yml up -d
 ```
 

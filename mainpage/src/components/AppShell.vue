@@ -8,7 +8,7 @@
       <section class="panel panel--controls" aria-labelledby="controls-heading"><span id="controls-heading" class="sr-only">订阅转换参数</span><slot name="controls" /></section>
       <section class="panel panel--result" aria-labelledby="result-heading"><span id="result-heading" class="sr-only">生成结果</span><slot name="result" /></section>
     </main>
-    <footer class="site-footer"><span class="status-dot" aria-hidden="true" /><span>SubConv RS v3.0.0</span><span class="site-footer__divider" aria-hidden="true">/</span><span>Rust rewrite inspired by <a href="https://github.com/SubConv/SubConv" target="_blank" rel="noreferrer">SubConv</a></span></footer>
+    <footer class="site-footer"><span class="status-dot" aria-hidden="true" /><span>SubConv RS v3.1.0</span><span class="site-footer__divider" aria-hidden="true">/</span><span>Rust rewrite inspired by <a href="https://github.com/SubConv/SubConv" target="_blank" rel="noreferrer">SubConv</a></span></footer>
   </div>
 </template>
 <script setup lang="ts">

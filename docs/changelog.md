@@ -1,5 +1,23 @@
 # Changelog
 
+## 2026-07-05 — 模板优化 + DNS 修正
+
+### 修改
+
+**模板**
+- `meta-rules.yaml` 修正游戏平台分组，移除重复 AI 对话组，新增 TikTok 分组
+- 优化规则顺序，减少匹配冲突
+
+**DNS 策略**
+- `nameserver-policy` 移除 `geosite:geolocation-!cn`，仅保留 `geosite:gfw`
+- 新增 Apple/Microsoft/Steam 域名前缀匹配条目，确保直连服务用国内 DNS
+- 修正后逻辑：GFW 域名→境外 DNS，Apple/MS/Steam→国内 DNS，其余→`respect-rules`
+
+### Commits
+```
+5c42d3f fix(meta-rules): 修正游戏平台分组、移除重复AI对话组、新增TikTok分组
+```
+
 ## 2026-06-29 — 订阅缓存 + 构建优化
 
 ### 新增功能
